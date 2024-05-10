@@ -1,40 +1,33 @@
-import { Box, Button, Input, InputGroup, InputRightElement, Stack, background } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Box, Button, Card, CardBody, CardHeader, Heading, Input, InputGroup, InputRightElement, Stack, background } from "@chakra-ui/react";
+import React from "react";
+import { useState } from "react";
+import "../../styles/quote.css";
+import envVariables from "../../importenv";
 
 export default function QuoteInput() {
 
-    const [searchQuote, setSearchQuote] = useState("");
+    const [seachQuoteCategory, setSearchQuoteCategory] = useState("");
     const [showQuote, setShowQuote] = useState(false);
 
-    const[quoteResult, setQuoteResult] = useState("");
+    const [quoteResult, setQuoteResult] = useState("");
 
-    useEffect( () => {
-        if (searchQuote.length > 0 && searchQuote !== null) {
-            return ;
+    const onGenerateQuote = async () => {
+        if (seachQuoteCategory === "") {
+            alert("Please enter a topic to generate a quote");
+            return;
         }
 
-        const quote = async () => {
-            try {
-                const response = await fetch(`https://api.api-ninjas.com/v1/quotes?category=${searchQuote}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Api-Key': 'nI9QPk4qicX35si/Jk2XAA==O3lgXnSDBrMMsbhX',
-                    },
-                });
-                
-                const data = await response.json();
-                console.log("Quote data: ", data);
-                setShowQuote(true);
-                setQuoteResult(data.quote);
-                console.log("Quote result: ", quoteResult);
+        // Fetch the quote which expects an array of properties
 
-            } catch (error) {
-                console.log(error);
-            }
-        };
-
-    },[]);
+        const quote: any = await processQuote(seachQuoteCategory);
+        if (quote) {
+            setQuoteResult(quote);
+            setShowQuote(true);
+        } else {
+            setQuoteResult("No quote found for this topic. Please try again.");
+            setShowQuote(true);
+        }
+    }
 
     return (
         <div>
@@ -43,7 +36,7 @@ export default function QuoteInput() {
                     <Input
                         placeholder="Enter your topic to generate quotes quickly using AI"
                         size={{ base: "md", md: "lg" }}
-                        onChange={e => setSearchQuote(e.target.value)}
+                        onChange={e => setSearchQuoteCategory(e.target.value)}
                     />
                     <InputRightElement width={{ base: "4.5rem", md: "7.5rem" }} m={1}>
                         <Button
@@ -51,21 +44,56 @@ export default function QuoteInput() {
                             size={{ base: "md", md: "lg" }}
                             bg={"#FFD351"}
                             _hover={{ bg: "#F8A819" }}
+                            onClick={onGenerateQuote}
                         >
                             Generate
                         </Button>
                     </InputRightElement>
                 </InputGroup>
             </Box>
-
-            <Box>
-                {/* Only show text if showQuote is true */}
+            <div>
                 {showQuote && <Stack>
-                    <Box>
-                        <p>{quoteResult}</p>
-                    </Box>
+                    <Card className="card">
+                        <CardHeader>
+                            <Heading size='md'>Quote of the Day</Heading>
+                        </CardHeader>
+                        <CardBody>
+                            <Box>
+                                <Box className="quoteBox">
+                                    <p className="quoteResult">{quoteResult}</p>
+                                </Box>
+                            </Box>
+                        </CardBody>
+                    </Card>
                 </Stack>}
-            </Box>
+
+            </div>
         </div>
     );
 };
+
+async function processQuote(seachQuoteCategory: string): Promise<string> {
+
+    const backendURL = envVariables.backendURL;
+    console.log("Backend URL: ", backendURL);
+
+    try {
+
+        const response = await fetch(`${backendURL}/quotes?category=${seachQuoteCategory}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        const quoteData = await response.json();
+        console.log(quoteData);
+        console.log(quoteData.message);
+        console.log(quoteData.data);
+        return quoteData.data;
+
+    } catch (error) {
+        console.error("Error fetching quote: ", error);
+        return "";
+    }
+}
