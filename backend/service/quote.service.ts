@@ -1,13 +1,12 @@
 import envVariables from "../importenv";
 
 class QuoteService {
-    async getQuoteByCategory(category: string) {
+    async getRandomQuote() {
         try {
             
-            const response = await fetch(`https://api.api-ninjas.com/v1/quotes?category=${category}`,{
+            const response = await fetch(`https://api.quotable.io/random`,{
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Api-Key': envVariables.API_KEY,
                 }
             });
 
@@ -27,10 +26,6 @@ class QuoteService {
         } catch (error) {
             console.log("Here is the error : ", error);
         }
-    }
-
-    countWordsInQuote(quote: string) : number {
-        return quote.split(" ").length;
     }
 }
 

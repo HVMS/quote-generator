@@ -6,19 +6,15 @@ export const getQuoteByCategoryRouter = express.Router();
 
 const quoteService = new QuoteService();
 
-getQuoteByCategoryRouter.get('/', async (req: Request, res: Response) => {
+getQuoteByCategoryRouter.get('/random', async (req: Request, res: Response) => {
 
-    console.log("Request is : ", req);
-    console.log("Request body is : ", req.body);
-
-    const category = req.query.category;
-    console.log("Category is : ", category);
+    console.log(req.body);
 
     try {
-        const quote = await quoteService.getQuoteByCategory(category as string);
-        if (quote.length > 0 && quote !== null) {
-            console.log("Quote is : ", quote[0].quote);
-            res.status(200).json({ message: "Successful quote retrieved", data: quote[0].quote });
+        const quote = await quoteService.getRandomQuote();
+        if (quote) {
+            console.log(quote);
+            res.status(200).json({ message: "Successful quote retrieved", data: quote });
         } else {
             res.status(404).json({ message: "Failed to retrieve quote", quote: null });
         }
