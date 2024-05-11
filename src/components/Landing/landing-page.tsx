@@ -6,7 +6,7 @@ const LandingPage = () => {
         <div>
             <Box p={10}>
                 <Text fontSize={"2xl"} fontWeight={600} textAlign={"center"}>
-                    Best Free AI Social Media Quotes Copy Generator
+                    Quote Generator
                 </Text>
             </Box>
             <QuoteGenerator />
